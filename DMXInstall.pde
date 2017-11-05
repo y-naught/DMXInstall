@@ -85,8 +85,8 @@ void draw(){
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
     g.background(0);
-    gradScan.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed);
-    gradScan.display(g, globalAngle, globalWidth);
+    gradScan.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
+    gradScan.display(g);
     image(g,0,0);
   }
   

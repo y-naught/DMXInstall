@@ -1,37 +1,30 @@
-color c1;
-color c2;
-
-PVector loc;
-PVector vel;
-
-int w = 200;
-
 class GradientScan{
   
+  //private variables for this object
   color c1;
   color c2;
-
   PVector loc;
   PVector vel;
-
   int w = 200;
   float angle = 0;
   
+  //constructor
   GradientScan(){
     loc = new PVector(-(Layers.get(0).width / 2 + 200), -(Layers.get(0).height / 2 + 200));
     vel = new PVector(30, 0);
   }
   
-  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, float sp){
+  //update the info
+  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, float sp, float an, int wid){
     c1 = color(hu, sat, bri);
     c2 = color(hu2, sat2, bri2);
     vel.x = sp;
     loc.add(vel);
-  }
-  
-  void display(PGraphics g, float an, int wid){
     w = wid;
     angle = an;
+  }
+  
+  void display(PGraphics g){
     g.beginDraw();
     g.rotate(angle);
   for(int i = 0; i < w / 2; i++){

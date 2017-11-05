@@ -4,6 +4,7 @@ float radius = 200.0;
 float lightSpacing = 0.37;
 
 
+//a function to be able to rotate the lights about an axis
 void lightArranger(ArrayList<ThreeCh> lights){
   for(int i = 0; i < lights.size(); i++){
     ThreeCh l = lights.get(i);
@@ -13,6 +14,7 @@ void lightArranger(ArrayList<ThreeCh> lights){
   }
 }
 
+//a function to reset the lights to the original configuration
 void lightReset(ArrayList<ThreeCh> lights){
  for(int i = 0; i < lights.size(); i ++){
    float x = radius * sin(-currentAngle) + width / 2;

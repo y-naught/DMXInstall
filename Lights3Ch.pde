@@ -43,7 +43,7 @@ class ThreeCh{
     location.y = y;
   }
   
-  //a method for displaying the light on the screen
+  //a method for displaying the light on the screen including its channel number
   void display(){
     noStroke();
     fill(255);
