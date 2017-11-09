@@ -1,4 +1,6 @@
 import dmxP512.*;
+import processing.serial.*;
+import themidibus.*;
 
 //declaring two sets of global color values
 int hue1 = 0;
@@ -24,7 +26,7 @@ int universeSize = 256;
 String DMXPRO_PORT = "COM5";
 int DMXPRO_BAUDRATE = 115000;
 ArrayList<ThreeCh> Lights3Ch;
-int numLights = 17;
+int numLights = 19;
 
 
 //Declaring places for the effects to live
@@ -39,7 +41,7 @@ GradientScan gradScan;
 
 
 void setup(){
-  size(500,500);
+  size(500,500, P2D);
   rectMode(CENTER);
   colorMode(HSB);
   frameRate(30);
@@ -58,7 +60,7 @@ void setup(){
   
   Layers = new ArrayList<PGraphics>();
   for(int i = 0; i < numEffects; i++){
-   Layers.add(createGraphics(width + 200, height + 200, P2D));
+   Layers.add(createGraphics(width, height, P2D));
   }
   
   modes = new ArrayList<Boolean>(numEffects);
@@ -84,9 +86,11 @@ void draw(){
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
+    g.beginDraw();
     g.background(0);
     gradScan.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
     gradScan.display(g);
+    g.endDraw();
     image(g,0,0);
   }
   

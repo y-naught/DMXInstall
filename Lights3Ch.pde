@@ -19,23 +19,15 @@ class ThreeCh{
   //returns a color from the layer passed into the function
   color sampleColor(PGraphics img){
     img.loadPixels();
-    int redTotal = 0;
-    int greenTotal = 0;
-    int blueTotal = 0;
     //finds the pixel it should reference based on the lights location on the sketch
-    for(int i = -1; i <= 1; i++){
-      for(int j = -1; j <= 1; j++){
-        color cn = color(img.pixels[int(location.x + i) + int(location.y + j) * img.width]);
-        redTotal += red(cn);
-        greenTotal += green(cn);
-        blueTotal += blue(cn);
-      }
-    }
+        color cn = color(img.pixels[int(location.x) + int(location.y) * img.width]);
+        
     img.updatePixels();
     //returns the color it extracts from that given pixel in the image
-    c = color(redTotal / 9, greenTotal / 9, blueTotal / 9);
+    c = color(cn);
     return c;
   }
+  
   
   //a method for moving the light
   void move(float x, float y){

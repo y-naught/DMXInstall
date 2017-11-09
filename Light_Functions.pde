@@ -1,7 +1,7 @@
 //light-related global variables
 float currentAngle = 0.10;
 float radius = 200.0;
-float lightSpacing = 0.37;
+float lightSpacing = 0.33;
 
 
 //a function to be able to rotate the lights about an axis
