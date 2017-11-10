@@ -2,6 +2,8 @@ import dmxP512.*;
 import processing.serial.*;
 import themidibus.*;
 
+MidiBus bus;
+
 //declaring two sets of global color values
 int hue1 = 0;
 int saturation1 = 255;
@@ -13,6 +15,7 @@ int saturation2 = 255;
 int brightness2 = 255;
 int alpha2 = 255;
 
+Boolean colSwitch = false;
 
 //declaring global effect speed values
 float globalAngle = 0;
@@ -34,7 +37,7 @@ int numEffects = 1;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
-
+PGraphics gcom;
 //declaring which effects we have
 GradientScan gradScan;
 
@@ -46,6 +49,9 @@ void setup(){
   colorMode(HSB);
   frameRate(30);
   
+  bus = new MidiBus(this, 0, -1);
+  
+   gcom = createGraphics(width,height,P2D);
   
   dmxOutput = new DmxP512(this, universeSize, false);
   dmxOutput.setupDmxPro(DMXPRO_PORT, DMXPRO_BAUDRATE);
@@ -80,18 +86,34 @@ void setup(){
 }
 
 void draw(){
-  
+  background(0);
   
   
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
+    
+    //PGraphics gcom = createGraphics(width,height,P2D);
     g.beginDraw();
     g.background(0);
     gradScan.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
     gradScan.display(g);
+    if(gradScan.loc.x > width / 2){
+      gradScan.loc.x = -width / 2  ;
+    }
     g.endDraw();
-    image(g,0,0);
+    //g.beginDraw();
+    //g.pushMatrix();
+    pushMatrix();
+    translate(width/2, height /2);
+    rotate(globalAngle);
+    //g.beginDraw();
+    image(g,gradScan.loc.x,gradScan.loc.y);
+    image(g,gradScan.loc.x - g.width, gradScan.loc.y);
+    popMatrix();
+    //g.endDraw();
+    //g.popMatrix();
+    //image(g,0,0);
   }
   
   
@@ -116,6 +138,67 @@ void draw(){
     fill(c);
     l.display();
    }
+  }
+ }
+}
+
+void controllerChange(int channel, int number, int value){
+ if(number == 48){
+   if(colSwitch == true){
+   hue1 = value * 2;
+   }else{
+    hue2 = value * 2; 
+   }
+ }
+ if(number == 49){
+   if(colSwitch == true){
+   saturation1 = value * 2;
+   }else{
+    saturation2 = value * 2; 
+   }
+ }
+ if(number == 50){
+   if(colSwitch == true){
+   brightness1 = value * 2;
+   }else{
+    brightness2 = value * 2; 
+   }
+  }
+  if(number == 51){
+   globalAngle = map(value, 0, 127, 0, TWO_PI);
+  }
+  if(number == 52){
+   globalSpeed = map(value, 0, 127, 0, 50); 
+  }
+  if(number == 53){
+   globalWidth =int(map(value, 0, 127, 0, width)); 
+  }
+  if(number == 56){
+   currentAngle = map(value, 0, 127, 0, TWO_PI);
+   lightReset(Lights3Ch);
+ }
+}
+
+void noteOn(Note note){
+ if(note.pitch() == 56){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 0){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+   }
+  }
+ }
+ if(note.pitch() == 89){
+   if(colSwitch == true){
+    colSwitch = false;
+   }
+   else{
+    colSwitch = true; 
   }
  }
 }

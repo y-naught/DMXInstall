@@ -18,11 +18,11 @@ class ThreeCh{
   
   //returns a color from the layer passed into the function
   color sampleColor(PGraphics img){
-    img.loadPixels();
+    loadPixels();
     //finds the pixel it should reference based on the lights location on the sketch
-        color cn = color(img.pixels[int(location.x) + int(location.y) * img.width]);
+        color cn = color(pixels[int(location.x) + int(location.y) * img.width]);
         
-    img.updatePixels();
+    updatePixels();
     //returns the color it extracts from that given pixel in the image
     c = color(cn);
     return c;

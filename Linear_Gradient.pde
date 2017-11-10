@@ -10,8 +10,8 @@ class GradientScan{
   
   //constructor
   GradientScan(){
-    loc = new PVector(-(Layers.get(0).width / 2 + 200), -(Layers.get(0).height / 2 + 200));
-    vel = new PVector(30, 0);
+    loc = new PVector(-width/2,-height/2);
+    vel = new PVector(10, 0);
   }
   
   //update the info
@@ -21,7 +21,7 @@ class GradientScan{
     vel.x = sp;
     loc.add(vel);
     w = wid;
-    angle = an;
+    //angle = an;
   }
   
   void display(PGraphics g){
