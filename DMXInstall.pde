@@ -4,6 +4,8 @@ import themidibus.*;
 
 MidiBus bus;
 
+PrintWriter output; 
+
 //declaring two sets of global color values
 int hue1 = 0;
 int saturation1 = 255;
@@ -30,6 +32,7 @@ String DMXPRO_PORT = "COM5";
 int DMXPRO_BAUDRATE = 115000;
 ArrayList<ThreeCh> Lights3Ch;
 int numLights = 19;
+Boolean lightBlack = false;
 
 
 //Declaring places for the effects to live
@@ -128,6 +131,7 @@ void draw(){
   for(int i = 1; i < Lights3Ch.size() * 3; i++){
     colorMode(HSB);
     ThreeCh l = Lights3Ch.get(i / 3);
+    if(!l.black){
     color c = l.sampleColor(g);
     dmxOutput.set(i, int(red(c)));
     i++;
@@ -137,8 +141,41 @@ void draw(){
     noStroke();
     fill(c);
     l.display();
+   }else{
+    color c = l.sampleColor(g);
+    dmxOutput.set(i, 0);
+    i++;
+    dmxOutput.set(i, 0);
+    i++;
+    dmxOutput.set(i, 0);
+    noStroke();
+    fill(c);
+    l.display();
    }
   }
+  }
+ }
+ lightBlack = false;
+}
+
+void keyPressed(){
+  if(key == 'z'){
+   lightBlackout(Lights3Ch); 
+ }
+ if(key == 'l'){
+   readLightFile("positions.txt");
+ }
+ if(key == 'k'){
+   readLightFile("positions2.txt");
+ }
+ if(key == 'j'){
+   readLightFile("positions3.txt");
+ }
+ if(key == 'h'){
+   readLightFile("positions4.txt");
+ }
+ if(key == 's'){
+   saveLightPreset();
  }
 }
 

@@ -24,3 +24,37 @@ void lightReset(ArrayList<ThreeCh> lights){
    l.move(x, y);
  }
 }
+
+void lightBlackout(ArrayList<ThreeCh> lights){
+ for(int i = 0; i < lights.size(); i++){
+  ThreeCh l = lights.get(i);
+    if(mouseX > l.location.x - l.sz / 2 && mouseX < l.location.x + l.sz / 2 && mouseY > l.location.y - l.sz / 2 && mouseY- l.sz / 2 < l.location.y + l.sz / 2){
+      if(l.black == true){
+       l.black = false; 
+      }else{
+       l.black = true; 
+      }
+    }
+ }
+}
+
+void readLightFile(String s){
+ String[] positions = loadStrings(s);
+ for(int i = 0; i < numLights; i++){
+   ThreeCh l = Lights3Ch.get(i);
+   l.move(float(positions[i*3]),float(positions[i*3+1]));
+   l.black = boolean(positions[i*3+2]);
+ }
+}
+
+void saveLightPreset(){
+  output = createWriter("positions5.txt");
+  for(int i = 0; i < numLights; i++){
+    ThreeCh l = Lights3Ch.get(i);
+    output.println(l.location.x);
+    output.println(l.location.y);
+    output.println(l.black);
+  }
+  output.flush();
+  output.close();
+}

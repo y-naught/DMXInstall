@@ -4,6 +4,7 @@ class ThreeCh{
   color c;
   PVector location;
   float sz = 20;
+  Boolean black = false;
   
   //constructor takes the first of the channels this light will occupy and a PVector for location in window
   ThreeCh(int stCh, PVector loc){
@@ -38,7 +39,11 @@ class ThreeCh{
   //a method for displaying the light on the screen including its channel number
   void display(){
     noStroke();
+    if(!black){
     fill(255);
+    }else{
+     fill(0); 
+    }
     rect(location.x, location.y, sz, sz);
     fill(0);
     text(channel[0], location.x - sz / 2, location.y + sz / 4);
