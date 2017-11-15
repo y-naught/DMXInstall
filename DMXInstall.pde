@@ -36,13 +36,15 @@ Boolean lightBlack = false;
 
 
 //Declaring places for the effects to live
-int numEffects = 2;
+int numEffects = 3;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
 PGraphics gcom;
 //declaring which effects we have
 GradientScan gradScan;
+//no automatic scroll
+GradientScan2 gradScan2;
 HardFlip hardFlip;
 
 
@@ -88,6 +90,7 @@ void setup(){
   
   gradScan = new GradientScan();
   hardFlip = new HardFlip();
+  gradScan2 = new GradientScan2();
 }
 
 void draw(){
@@ -98,7 +101,6 @@ void draw(){
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
     
-    //PGraphics gcom = createGraphics(width,height,P2D);
     g.beginDraw();
     g.background(0);
     gradScan.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
@@ -107,26 +109,38 @@ void draw(){
       gradScan.loc.x = -width / 2  ;
     }
     g.endDraw();
-    //g.beginDraw();
-    //g.pushMatrix();
     pushMatrix();
     translate(width/2, height /2);
     rotate(globalAngle);
-    //g.beginDraw();
     image(g,gradScan.loc.x,gradScan.loc.y);
     image(g,gradScan.loc.x - g.width, gradScan.loc.y);
     popMatrix();
-    //g.endDraw();
-    //g.popMatrix();
-    //image(g,0,0);
   }
   
   if(modes.get(1)){
    PGraphics g = Layers.get(1);
-   
    hardFlip.update(globalAngle, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
    hardFlip.display(g);
    image(g,0,0);
+  }
+  
+  if(modes.get(2)){
+   PGraphics g = Layers.get(2);
+   float pos = map(globalSpeed, 0, 50, -width, width);
+   gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+   gradScan2.display(g);
+   if(gradScan2.loc.x > width / 2){
+      gradScan2.loc.x = -width / 2;
+    }
+    else if(gradScan2.loc.x < -width / 2){
+     gradScan.loc.x = width / 2; 
+    }
+   pushMatrix();
+    translate(width/2, height /2);
+    rotate(globalAngle);
+    image(g,gradScan2.loc.x,gradScan2.loc.y);
+    image(g,gradScan2.loc.x - g.width, gradScan2.loc.y);
+    popMatrix();
   }
   
   
@@ -241,6 +255,19 @@ void noteOn(Note note){
  if(note.pitch() == 57){
    for(int i = 0; i < modes.size(); i++){
     if(i == 1){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+   }
+  }
+ }
+ if(note.pitch() == 58){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 2){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);

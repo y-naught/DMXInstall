@@ -23,7 +23,6 @@ class HardFlip{
     g.rect(-width / 2, -height / 2, width / 2, height);
     g.fill(c2);
     g.rect(0, -height / 2, width / 2, height);
-    
     g.endDraw();
   }
 }
