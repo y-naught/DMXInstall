@@ -36,13 +36,14 @@ Boolean lightBlack = false;
 
 
 //Declaring places for the effects to live
-int numEffects = 1;
+int numEffects = 2;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
 PGraphics gcom;
 //declaring which effects we have
 GradientScan gradScan;
+HardFlip hardFlip;
 
 
 
@@ -86,6 +87,7 @@ void setup(){
   }
   
   gradScan = new GradientScan();
+  hardFlip = new HardFlip();
 }
 
 void draw(){
@@ -119,7 +121,13 @@ void draw(){
     //image(g,0,0);
   }
   
-  
+  if(modes.get(1)){
+   PGraphics g = Layers.get(1);
+   
+   hardFlip.update(globalAngle, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
+   hardFlip.display(g);
+   image(g,0,0);
+  }
   
   
   
@@ -220,6 +228,19 @@ void noteOn(Note note){
  if(note.pitch() == 56){
    for(int i = 0; i < modes.size(); i++){
     if(i == 0){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+   }
+  }
+ }
+ if(note.pitch() == 57){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 1){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);
