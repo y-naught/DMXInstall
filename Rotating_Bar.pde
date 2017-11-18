@@ -1,4 +1,4 @@
-class GradientScan2{
+class RotatingBar{
 
   //private variables for this object
   color c1;
@@ -8,10 +8,10 @@ class GradientScan2{
   int w = 200;
   float angle = 0;
   Boolean type = false;
-  Boolean barOn = false;
+  //Boolean barOn = false;
   
   //constructor
-  GradientScan2(Boolean t){
+  RotatingBar(Boolean t){
     loc = new PVector(-width/2,-height/2);
     type = t;
   }
@@ -23,7 +23,7 @@ class GradientScan2{
       c2 = color(hu2, sat2, bri2);
     }else{
       c2 = color(hu, sat, bri);
-      c1 = color(hu2, sat2, bri2);
+      c1 = color(hu, sat, bri);
     }
     loc.x = pos;
     w = wid;
@@ -35,7 +35,7 @@ class GradientScan2{
     g.beginDraw();
     g.rotate(angle);
   for(int i = 0; i < w / 2; i++){
-     g.stroke(c1);
+     g.stroke(0);
      if(type == true){
        g.line(i, 0, i, g.height/2);
      }else{
@@ -45,27 +45,31 @@ class GradientScan2{
   
   for(int i = w / 2; i < g.width / 2; i++){
     color c;
-      c = lerpColor(c1, c2, map(i, w /2, g.width / 2, 0 , 1.0));
-      g.stroke(c);
       if(type == true){
-       g.line(i, 0, i, g.height/2);
+        c = lerpColor(color(0,0,0), c1, map(i, w /2, g.width / 2, 0 , 1.0));
+        g.stroke(c);
+        g.line(i, 0, i, g.height/2);
      }else{
-       g.line(i, g.height/2, i, g.height);
+        c = lerpColor(color(0,0,0), c2, map(i, w /2, g.width / 2, 0 , 1.0));
+        g.stroke(c);
+        g.line(i, g.height/2, i, g.height);
      }
   }
   
   for(int i = g.width / 2; i < g.width - w / 2; i++){
     color c;
-      c = lerpColor(c2, c1, map(i, g.width / 2, g.width - w / 2, 0, 1.0));
-      g.stroke(c);
       if(type == true){
-       g.line(i, 0, i, g.height/2);
+        c = lerpColor(c1, color(0,0,0), map(i, g.width / 2, g.width - w / 2, 0, 1.0));
+        g.stroke(c);
+        g.line(i, 0, i, g.height/2);
      }else{
-       g.line(i, g.height/2, i, g.height);
+        c = lerpColor(c2, color(0,0,0), map(i, g.width / 2, g.width - w / 2, 0, 1.0));
+        g.stroke(c);
+        g.line(i, g.height/2, i, g.height);
      }
   }
   for(int i = g.width - w / 2; i < g.width; i++){
-    g.stroke(c1);
+    g.stroke(0);
     if(type == true){
        g.line(i, 0, i, g.height/2);
      }else{

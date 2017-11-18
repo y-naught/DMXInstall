@@ -17,7 +17,9 @@ int saturation2 = 255;
 int brightness2 = 255;
 int alpha2 = 255;
 
+Boolean splitSwitch = false;
 Boolean colSwitch = false;
+Boolean blackswitch = false;
 
 //declaring global effect speed values
 float globalAngle = 0;
@@ -35,6 +37,7 @@ int numLights = 19;
 Boolean lightBlack = false;
 
 
+
 //Declaring places for the effects to live
 int numEffects = 3;
 ArrayList<Boolean> modes;
@@ -45,12 +48,13 @@ PGraphics gcom;
 GradientScan gradScan;
 //no automatic scroll
 GradientScan2 gradScan2;
+GradientScan2 gradScan22;
 HardFlip hardFlip;
 
 
 
 void setup(){
-  size(500,500, P2D);
+  size(500,500,P2D);
   rectMode(CENTER);
   colorMode(HSB);
   frameRate(30);
@@ -90,7 +94,8 @@ void setup(){
   
   gradScan = new GradientScan();
   hardFlip = new HardFlip();
-  gradScan2 = new GradientScan2();
+  gradScan2 = new GradientScan2(true);
+  gradScan22 = new GradientScan2(false);
 }
 
 void draw(){
@@ -100,11 +105,23 @@ void draw(){
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
-    
     g.beginDraw();
     g.background(0);
-    gradScan.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
+    if(splitSwitch == true){
+    gradScan.sw(false);
+    gradScan.update(hue1, saturation1, brightness1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
     gradScan.display(g);
+    gradScan.sw(true);
+    gradScan.update(hue2, saturation2, brightness2, hue1, saturation1, brightness1, globalSpeed, globalAngle, globalWidth);
+    gradScan.display(g);
+    }else{
+      gradScan.sw(false);
+      gradScan.update(hue1, saturation1, brightness1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
+      gradScan.display(g);
+      gradScan.sw(true);
+      gradScan.update(hue1, saturation1, brightness1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
+      gradScan.display(g);
+    }
     if(gradScan.loc.x > width / 2){
       gradScan.loc.x = -width / 2  ;
     }
@@ -126,21 +143,32 @@ void draw(){
   
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
-   float pos = map(globalSpeed, 0, 50, -width, width);
+   float pos = map(globalSpeed, 0, 50, -width, width/4);
+   if(splitSwitch == true){
+   gradScan2.sw(false);
    gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
    gradScan2.display(g);
-   if(gradScan2.loc.x > width / 2){
-      gradScan2.loc.x = -width / 2;
-    }
-    else if(gradScan2.loc.x < -width / 2){
-     gradScan.loc.x = width / 2; 
-    }
+   gradScan2.sw(true);
+   gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+   gradScan2.display(g);
    pushMatrix();
     translate(width/2, height /2);
     rotate(globalAngle);
-    image(g,gradScan2.loc.x,gradScan2.loc.y);
-    image(g,gradScan2.loc.x - g.width, gradScan2.loc.y);
+    image(g,gradScan2.loc.x, gradScan2.loc.y);
     popMatrix();
+   }else{
+   gradScan2.sw(false);
+   gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+   gradScan2.display(g);
+   gradScan2.sw(true);
+   gradScan2.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, pos, globalAngle, globalWidth);
+   gradScan2.display(g);
+   pushMatrix();
+    translate(width/2, height /2);
+    rotate(globalAngle);
+    image(g,gradScan2.loc.x, gradScan2.loc.y);
+    popMatrix();
+   }
   }
   
   
@@ -284,6 +312,14 @@ void noteOn(Note note){
    }
    else{
     colSwitch = true; 
+  }
+ }
+ if(note.pitch() == 88){
+   if(splitSwitch == true){
+    splitSwitch = false;
+   }
+   else{
+    splitSwitch = true; 
   }
  }
 }
