@@ -25,6 +25,7 @@ Boolean blackswitch = false;
 float globalAngle = 0;
 float globalSpeed = 30;
 int globalWidth = 0;
+float globalRotation = 0;
 
 
 //light information for interface connectivity
@@ -39,7 +40,7 @@ Boolean lightBlack = false;
 
 
 //Declaring places for the effects to live
-int numEffects = 3;
+int numEffects = 4;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
@@ -50,6 +51,7 @@ GradientScan gradScan;
 GradientScan2 gradScan2;
 GradientScan2 gradScan22;
 HardFlip hardFlip;
+RotatingBar bar;
 
 
 
@@ -96,6 +98,7 @@ void setup(){
   hardFlip = new HardFlip();
   gradScan2 = new GradientScan2(true);
   gradScan22 = new GradientScan2(false);
+  bar = new RotatingBar(false);
 }
 
 void draw(){
@@ -105,6 +108,7 @@ void draw(){
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
+    globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
     g.beginDraw();
     g.background(0);
     if(splitSwitch == true){
@@ -128,15 +132,17 @@ void draw(){
     g.endDraw();
     pushMatrix();
     translate(width/2, height /2);
-    rotate(globalAngle);
+    rotate(globalRotation);
     image(g,gradScan.loc.x,gradScan.loc.y);
     image(g,gradScan.loc.x - g.width, gradScan.loc.y);
     popMatrix();
   }
   
+  
   if(modes.get(1)){
+    globalRotation += map(globalSpeed,0, 50, 0, PI / 8);
    PGraphics g = Layers.get(1);
-   hardFlip.update(globalAngle, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
+   hardFlip.update(globalRotation, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
    hardFlip.display(g);
    image(g,0,0);
   }
@@ -167,6 +173,38 @@ void draw(){
     translate(width/2, height /2);
     rotate(globalAngle);
     image(g,gradScan2.loc.x, gradScan2.loc.y);
+    popMatrix();
+   }
+  }
+  
+  if(modes.get(3)){
+   globalRotation += map(globalSpeed,0, 50, 0, PI / 8);
+   PGraphics g = Layers.get(3);
+   float pos = -width/2;
+   //float pos = map(globalSpeed, 0, 50, -width, width/4);;
+   if(splitSwitch == true){
+   bar.sw(false);
+   bar.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+   bar.display(g);
+   bar.sw(true);
+   bar.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+   bar.display(g);
+   pushMatrix();
+    translate(width/2, height /2);
+    rotate(globalRotation);
+    image(g,bar.loc.x, bar.loc.y);
+    popMatrix();
+   }else{
+   bar.sw(false);
+   bar.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+   bar.display(g);
+   bar.sw(true);
+   bar.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, pos, globalAngle, globalWidth);
+   bar.display(g);
+   pushMatrix();
+    translate(width/2, height /2);
+    rotate(globalRotation);
+    image(g,bar.loc.x, bar.loc.y);
     popMatrix();
    }
   }
@@ -296,6 +334,19 @@ void noteOn(Note note){
  if(note.pitch() == 58){
    for(int i = 0; i < modes.size(); i++){
     if(i == 2){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+   }
+  }
+ }
+ if(note.pitch() == 59){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 3){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);
