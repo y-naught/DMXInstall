@@ -4,7 +4,9 @@ import themidibus.*;
 
 MidiBus bus;
 
-PrintWriter output; 
+PrintWriter output;
+PrintWriter logger;
+int count = 1;
 
 //declaring two sets of global color values
 int hue1 = 0;
@@ -20,6 +22,7 @@ int alpha2 = 255;
 Boolean splitSwitch = false;
 Boolean colSwitch = false;
 Boolean blackswitch = false;
+boolean reversed = false;
 
 //declaring global effect speed values
 float globalAngle = 0;
@@ -31,7 +34,7 @@ float globalRotation = 0;
 //light information for interface connectivity
 DmxP512 dmxOutput;
 int universeSize = 256;
-String DMXPRO_PORT = "COM5";
+String DMXPRO_PORT = "/dev/tty.usbserial-EN224919";
 int DMXPRO_BAUDRATE = 115000;
 ArrayList<ThreeCh> Lights3Ch;
 int numLights = 19;
@@ -56,14 +59,14 @@ RotatingBar bar;
 
 
 void setup(){
-  size(500,500,P2D);
+  size(500,500);
   rectMode(CENTER);
   colorMode(HSB);
   frameRate(30);
   
   bus = new MidiBus(this, 0, -1);
   
-   gcom = createGraphics(width,height,P2D);
+   gcom = createGraphics(width,height);
   
   dmxOutput = new DmxP512(this, universeSize, false);
   dmxOutput.setupDmxPro(DMXPRO_PORT, DMXPRO_BAUDRATE);
@@ -78,7 +81,7 @@ void setup(){
   
   Layers = new ArrayList<PGraphics>();
   for(int i = 0; i < numEffects; i++){
-   Layers.add(createGraphics(width, height, P2D));
+   Layers.add(createGraphics(width, height));
   }
   
   modes = new ArrayList<Boolean>(numEffects);
@@ -108,7 +111,11 @@ void draw(){
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
-    globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+    if(!reversed){
+      globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+    }else{
+      globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
+    }
     g.beginDraw();
     g.background(0);
     if(splitSwitch == true){
@@ -140,7 +147,11 @@ void draw(){
   
   
   if(modes.get(1)){
-    globalRotation += map(globalSpeed,0, 50, 0, PI / 8);
+    if(!reversed){
+      globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+    }else{
+      globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
+    }
    PGraphics g = Layers.get(1);
    hardFlip.update(globalRotation, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
    hardFlip.display(g);
@@ -178,7 +189,11 @@ void draw(){
   }
   
   if(modes.get(3)){
-   globalRotation += map(globalSpeed,0, 50, 0, PI / 8);
+   if(!reversed){
+      globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+    }else{
+      globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
+    }
    PGraphics g = Layers.get(3);
    float pos = -width/2;
    //float pos = map(globalSpeed, 0, 50, -width, width/4);;
@@ -265,6 +280,11 @@ void keyPressed(){
  if(key == 's'){
    saveLightPreset();
  }
+ if(key == 'x'){
+  logger.flush();
+  logger.close();
+  exit();
+ }
 }
 
 void controllerChange(int channel, int number, int value){
@@ -305,6 +325,19 @@ void controllerChange(int channel, int number, int value){
 }
 
 void noteOn(Note note){
+  
+  if(note.pitch() == 0){
+    readLightFile("positions.txt");
+  }
+  if(note.pitch() == 1){
+    readLightFile("positions2.txt");
+  }
+  if(note.pitch() == 2){
+    readLightFile("positions3.txt");
+  }
+  if(note.pitch() == 3){
+    readLightFile("positions4.txt");
+  }
  if(note.pitch() == 56){
    for(int i = 0; i < modes.size(); i++){
     if(i == 0){
@@ -357,7 +390,7 @@ void noteOn(Note note){
    }
   }
  }
- if(note.pitch() == 89){
+ if(note.pitch() == 64){
    if(colSwitch == true){
     colSwitch = false;
    }
@@ -365,7 +398,17 @@ void noteOn(Note note){
     colSwitch = true; 
   }
  }
- if(note.pitch() == 88){
+ if(note.pitch() == 67){
+  if(reversed == true){
+   reversed = false; 
+  }else{
+   reversed = true; 
+  }
+ }
+ if(note.pitch() == 70){
+  printConsole(); 
+ }
+ if(note.pitch() == 98){
    if(splitSwitch == true){
     splitSwitch = false;
    }
@@ -373,4 +416,26 @@ void noteOn(Note note){
     splitSwitch = true; 
   }
  }
+}
+
+void printConsole(){
+ if(logger == null){
+ logger = createWriter("effects.txt");
+ }
+ logger.println("");
+ logger.println("#" + count);
+ logger.println("");
+ logger.println(hue1);
+ logger.println(saturation1);
+ logger.println(brightness1);
+ logger.println(hue2);
+ logger.println(saturation2);
+ logger.println(brightness2);
+ logger.println(colSwitch);
+ logger.println(reversed);
+ logger.println(globalAngle);
+ logger.println(globalSpeed);
+ logger.println(globalWidth);
+ logger.println(splitSwitch); 
+ count++;
 }
