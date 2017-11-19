@@ -64,7 +64,7 @@ void setup(){
   colorMode(HSB);
   frameRate(30);
   
-  bus = new MidiBus(this, 0, -1);
+  bus = new MidiBus(this, "APC MINI", "APC MINI");
   
    gcom = createGraphics(width,height);
   
@@ -328,15 +328,39 @@ void noteOn(Note note){
   
   if(note.pitch() == 0){
     readLightFile("positions.txt");
+    bus.sendNoteOn(0, 0, 127);
+    for(int i = 0; i < 4; i++){
+      if(i != 0){
+      bus.sendNoteOn(0, i, 0);
+      }
+    }
   }
   if(note.pitch() == 1){
     readLightFile("positions2.txt");
+    bus.sendNoteOn(0, 1, 127);
+    for(int i = 0; i < 4; i++){
+      if(i != 1){
+      bus.sendNoteOn(0, i, 0);
+      }
+    }
   }
   if(note.pitch() == 2){
     readLightFile("positions3.txt");
+    bus.sendNoteOn(0, 2, 127);
+    for(int i = 0; i < 4; i++){
+      if(i != 2){
+      bus.sendNoteOn(0, i, 0);
+      }
+    }
   }
   if(note.pitch() == 3){
     readLightFile("positions4.txt");
+    bus.sendNoteOn(0, 3, 127);
+    for(int i = 0; i < 4; i++){
+      if(i != 3){
+      bus.sendNoteOn(0, i, 0);
+      }
+    }
   }
  if(note.pitch() == 56){
    for(int i = 0; i < modes.size(); i++){
@@ -344,10 +368,12 @@ void noteOn(Note note){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);
+      bus.sendNoteOn(0, 56, 127);
     }else{
       Boolean m = modes.get(i);
       m = false; 
       modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
    }
   }
  }
@@ -357,10 +383,12 @@ void noteOn(Note note){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);
+      bus.sendNoteOn(0, 57, 127);
     }else{
       Boolean m = modes.get(i);
       m = false; 
       modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
    }
   }
  }
@@ -370,10 +398,12 @@ void noteOn(Note note){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);
+      bus.sendNoteOn(0, 58, 127);
     }else{
       Boolean m = modes.get(i);
       m = false; 
       modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
    }
   }
  }
@@ -383,26 +413,32 @@ void noteOn(Note note){
       Boolean m = modes.get(i);
       m = true;
       modes.set(i, m);
+      bus.sendNoteOn(0, 59, 127);
     }else{
       Boolean m = modes.get(i);
       m = false; 
       modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
    }
   }
  }
  if(note.pitch() == 64){
    if(colSwitch == true){
     colSwitch = false;
+    bus.sendNoteOn(0, 64, 0);
    }
    else{
     colSwitch = true; 
+    bus.sendNoteOn(0, 64, 127);
   }
  }
  if(note.pitch() == 67){
   if(reversed == true){
-   reversed = false; 
+   reversed = false;
+   bus.sendNoteOn(0, 67, 0);
   }else{
    reversed = true; 
+   bus.sendNoteOn(0, 67, 127);
   }
  }
  if(note.pitch() == 70){
@@ -411,9 +447,11 @@ void noteOn(Note note){
  if(note.pitch() == 98){
    if(splitSwitch == true){
     splitSwitch = false;
+    bus.sendNoteOn(0, 97, 127);
    }
    else{
-    splitSwitch = true; 
+    splitSwitch = true;
+    bus.sendNoteOn(0, 97, 0);
   }
  }
 }
