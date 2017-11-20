@@ -1,8 +1,17 @@
 import dmxP512.*;
+import processing.net.*;
 import processing.serial.*;
 import themidibus.*;
 
 MidiBus bus;
+
+Server server;
+Client client;
+String input;
+float data[];
+
+float prevX = 0;
+float prevY = 0;
 
 PrintWriter output;
 PrintWriter logger;
@@ -64,6 +73,8 @@ void setup(){
   colorMode(HSB);
   frameRate(30);
   
+  server  = new Server(this, 5050);
+  
   bus = new MidiBus(this, "APC MINI", "APC MINI");
   
    gcom = createGraphics(width,height);
@@ -107,6 +118,17 @@ void setup(){
 void draw(){
   background(0);
   
+  client = server.available();
+  if( client!= null){
+   input = client.readString();
+   input = input.substring(0, input.length());
+   data = float(split(input, ','));
+   
+   float curX = data[0];
+   float curY = data[1];
+   prevX = 512 - curX;
+   prevY = curY;
+  }
   
   //Where the effects live
   if(modes.get(0)){
@@ -160,7 +182,7 @@ void draw(){
   
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
-   float pos = map(globalSpeed, 0, 50, -width, width/4);
+   float pos = map(prevX, 0, 512, -width, width/4);
    if(splitSwitch == true){
    gradScan2.sw(false);
    gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
