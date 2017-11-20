@@ -12,6 +12,7 @@ float data[];
 
 float prevX = 0;
 float prevY = 0;
+float prevD = 1600;
 
 PrintWriter output;
 PrintWriter logger;
@@ -124,20 +125,36 @@ void draw(){
    input = input.substring(0, input.length());
    data = float(split(input, ','));
    
-   float curX = data[0];
-   float curY = data[1];
-   prevX = 512 - curX;
-   prevY = curY;
-  }
+   float curX;
+   float curY;
+   float avgD;
+   if(data.length >= 3){
+     curX = data[0];
+     curY = data[1];
+     avgD = data[2];
+     if(curX >=0){
+       prevX = 512 - curX;
+     }
+     if(curY >= 0){
+       prevY = curY;
+     }
+     if(avgD >= 0){
+      prevD = avgD; 
+     }
+    }  
+ }
   
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
-    if(!reversed){
-      globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
-    }else{
-      globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
-    }
+    //if(!reversed){
+    //  globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+    //}else{
+    //  globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
+    //}
+    globalWidth = 0;
+    globalSpeed = map(prevD, 1600, 3750,  0 , 20);
+    globalAngle = int(map(prevX, 30, 492, 5 * PI / 6, PI / 6));
     g.beginDraw();
     g.background(0);
     if(splitSwitch == true){
@@ -157,11 +174,13 @@ void draw(){
     }
     if(gradScan.loc.x > width / 2){
       gradScan.loc.x = -width / 2  ;
+    }else if(gradScan.loc.x < -width /2){
+      gradScan.loc.x = width / 2;
     }
     g.endDraw();
     pushMatrix();
     translate(width/2, height /2);
-    rotate(globalRotation);
+    rotate(globalAngle);
     image(g,gradScan.loc.x,gradScan.loc.y);
     image(g,gradScan.loc.x - g.width, gradScan.loc.y);
     popMatrix();
@@ -169,20 +188,23 @@ void draw(){
   
   
   if(modes.get(1)){
-    if(!reversed){
-      globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
-    }else{
-      globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
-    }
+    //if(!reversed){
+    //  globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+    //}else{
+    //  globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
+    //}
+    globalAngle = int(map(prevX, 30, 492, 7 * PI / 8, PI / 8));
+     //globalAngle = int(map(prevD, 1600, 3750, , width));
    PGraphics g = Layers.get(1);
-   hardFlip.update(globalRotation, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
+   hardFlip.update(globalAngle, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
    hardFlip.display(g);
    image(g,0,0);
   }
   
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
-   float pos = map(prevX, 0, 512, -width, width/4);
+   float pos = map(prevX, 30, 492, -width, width/4);
+   globalWidth = int(map(prevD, 1600, 3750, 0, width));
    if(splitSwitch == true){
    gradScan2.sw(false);
    gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
@@ -211,11 +233,14 @@ void draw(){
   }
   
   if(modes.get(3)){
-   if(!reversed){
-      globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
-    }else{
-      globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
-    }
+   //if(!reversed){
+   //   globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
+   // }else{
+   //   globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
+   // }
+   globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
+   globalRotation += globalAngle;
+   globalWidth = int(map(prevD, 1600, 3750, width, width /2));
    PGraphics g = Layers.get(3);
    float pos = -width/2;
    //float pos = map(globalSpeed, 0, 50, -width, width/4);;
