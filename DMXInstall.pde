@@ -33,6 +33,7 @@ Boolean splitSwitch = false;
 Boolean colSwitch = false;
 Boolean blackswitch = false;
 boolean reversed = false;
+Boolean gridSwitch = false;
 
 //declaring global effect speed values
 float globalAngle = 0;
@@ -47,8 +48,9 @@ int universeSize = 256;
 String DMXPRO_PORT = "/dev/tty.usbserial-EN224919";
 int DMXPRO_BAUDRATE = 115000;
 ArrayList<ThreeCh> Lights3Ch;
-int numLights = 19;
+int numLights = 20;
 Boolean lightBlack = false;
+Boolean[] lightPositions = new Boolean[5];
 
 
 
@@ -84,6 +86,10 @@ void setup(){
   dmxOutput.setupDmxPro(DMXPRO_PORT, DMXPRO_BAUDRATE);
   
   Lights3Ch = new ArrayList<ThreeCh>();
+  
+  for(int i = 0; i < lightPositions.length; i++){
+   lightPositions[i] = false; 
+  }
   
   for(int i = 0; i < numLights; i++){
     PVector nextLoc = new PVector(radius * sin(currentAngle) + width / 2,radius * cos(currentAngle) + height / 2);
@@ -203,8 +209,15 @@ void draw(){
   
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
+   background(hue2, saturation2, brightness2);
    float pos = map(prevX, 30, 492, -width, width/4);
    globalWidth = int(map(prevD, 1600, 3750, 0, width));
+   if(lightPositions[2] == true){
+    globalAngle = 0; 
+   }
+   else if(lightPositions[1] == true){
+     globalAngle = PI/2;
+   }
    if(splitSwitch == true){
    gradScan2.sw(false);
    gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
@@ -241,6 +254,7 @@ void draw(){
    globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
    globalRotation += globalAngle;
    globalWidth = int(map(prevD, 1600, 3750, width, width /2));
+   //background(hue2, saturation2, brightness2);
    PGraphics g = Layers.get(3);
    float pos = -width/2;
    //float pos = map(globalSpeed, 0, 50, -width, width/4);;
@@ -257,6 +271,7 @@ void draw(){
     image(g,bar.loc.x, bar.loc.y);
     popMatrix();
    }else{
+   //background(hue2,brightness2, saturation2);
    bar.sw(false);
    bar.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
    bar.display(g);
@@ -306,6 +321,12 @@ void draw(){
   }
  }
  lightBlack = false;
+ if(mousePressed == true){
+ lightArranger(Lights3Ch);
+ }
+ if(gridSwitch == true){
+  displayGrid(); 
+ }
 }
 
 void keyPressed(){
@@ -314,15 +335,43 @@ void keyPressed(){
  }
  if(key == 'l'){
    readLightFile("positions.txt");
+   for(int i = 0; i < lightPositions.length; i++){
+    if(i != 0){
+     lightPositions[i] = false;
+    }else{
+     lightPositions[i] = true; 
+    }
+   }
  }
  if(key == 'k'){
    readLightFile("positions2.txt");
+   for(int i = 0; i < lightPositions.length; i++){
+    if(i != 1){
+     lightPositions[i] = false;
+    }else{
+     lightPositions[i] = true; 
+    }
+   }
  }
  if(key == 'j'){
    readLightFile("positions3.txt");
+   for(int i = 2; i < lightPositions.length; i++){
+    if(i != 0){
+     lightPositions[i] = false;
+    }else{
+     lightPositions[i] = true; 
+    }
+   }
  }
  if(key == 'h'){
    readLightFile("positions4.txt");
+   for(int i = 3; i < lightPositions.length; i++){
+    if(i != 0){
+     lightPositions[i] = false;
+    }else{
+     lightPositions[i] = true;
+    }
+   }
  }
  if(key == 's'){
    saveLightPreset();
@@ -331,6 +380,13 @@ void keyPressed(){
   logger.flush();
   logger.close();
   exit();
+ }
+ if(key == 'g'){
+  if(gridSwitch == true){
+   gridSwitch = false; 
+  }else{
+   gridSwitch = true; 
+  }
  }
 }
 
@@ -381,6 +437,13 @@ void noteOn(Note note){
       bus.sendNoteOn(0, i, 0);
       }
     }
+    for(int i = 0; i < lightPositions.length; i++){
+        if(i != 0){
+         lightPositions[i] = false;
+        }else{
+         lightPositions[i] = true; 
+        }
+     }
   }
   if(note.pitch() == 1){
     readLightFile("positions2.txt");
@@ -390,6 +453,13 @@ void noteOn(Note note){
       bus.sendNoteOn(0, i, 0);
       }
     }
+    for(int i = 0; i < lightPositions.length; i++){
+        if(i != 1){
+         lightPositions[i] = false;
+        }else{
+         lightPositions[i] = true; 
+        }
+     }
   }
   if(note.pitch() == 2){
     readLightFile("positions3.txt");
@@ -399,6 +469,13 @@ void noteOn(Note note){
       bus.sendNoteOn(0, i, 0);
       }
     }
+    for(int i = 0; i < lightPositions.length; i++){
+        if(i != 2){
+         lightPositions[i] = false;
+        }else{
+         lightPositions[i] = true; 
+        }
+     }
   }
   if(note.pitch() == 3){
     readLightFile("positions4.txt");
@@ -408,6 +485,29 @@ void noteOn(Note note){
       bus.sendNoteOn(0, i, 0);
       }
     }
+    for(int i = 0; i < lightPositions.length; i++){
+        if(i != 3){
+         lightPositions[i] = false;
+        }else{
+         lightPositions[i] = true; 
+        }
+     }
+  }
+  if(note.pitch() == 4){
+    readLightFile("positions5.txt");
+    bus.sendNoteOn(0, 3, 127);
+    for(int i = 0; i < 4; i++){
+      if(i != 4){
+      bus.sendNoteOn(0, i, 0);
+      }
+    }
+    for(int i = 0; i < lightPositions.length; i++){
+        if(i != 3){
+         lightPositions[i] = false;
+        }else{
+         lightPositions[i] = true; 
+        }
+     }
   }
  if(note.pitch() == 56){
    for(int i = 0; i < modes.size(); i++){
@@ -523,4 +623,15 @@ void printConsole(){
  logger.println(globalWidth);
  logger.println(splitSwitch); 
  count++;
+}
+
+void displayGrid(){
+  stroke(0);
+  strokeWeight(1);
+ for(int i = 0; i < width; i+=50){
+  line(i, 0, i, height); 
+ }
+ for(int i = 0; i < height; i+=50){
+  line(0, i, width, i); 
+ }
 }
