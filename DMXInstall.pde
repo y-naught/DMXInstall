@@ -155,23 +155,25 @@ void draw(){
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
-    //if(!reversed){
-    //  globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
-    //}else{
-    //  globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
-    //}
     globalWidth = 0;
     globalSpeed = map(prevD, 1600, 3750,  0 , 20);
-    globalAngle = int(map(prevX, 30, 492, 5 * PI / 6, PI / 6));
+    //globalAngle = int(map(prevX, 30, 492, 5 * PI / 6, PI / 6));
+    if(lightPositions[0] == true || lightPositions[1] == true){
+      globalAngle = PI / 2;
+    }else if(lightPositions[2] == true || lightPositions[3] == true){
+      globalAngle = 0;
+    }else if(lightPositions[4] == true){
+      globalAngle = PI / 4;
+    }
     g.beginDraw();
     g.background(0);
     if(splitSwitch == true){
-    gradScan.sw(false);
-    gradScan.update(hue1, saturation1, brightness1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
-    gradScan.display(g);
-    gradScan.sw(true);
-    gradScan.update(hue2, saturation2, brightness2, hue1, saturation1, brightness1, globalSpeed, globalAngle, globalWidth);
-    gradScan.display(g);
+      gradScan.sw(false);
+      gradScan.update(hue1, saturation1, brightness1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
+      gradScan.display(g);
+      gradScan.sw(true);
+      gradScan.update(hue2, saturation2, brightness2, hue1, saturation1, brightness1, globalSpeed, globalAngle, globalWidth);
+      gradScan.display(g);
     }else{
       gradScan.sw(false);
       gradScan.update(hue1, saturation1, brightness1, hue2, saturation2, brightness2, globalSpeed, globalAngle, globalWidth);
@@ -302,10 +304,10 @@ void draw(){
    bar.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, pos, globalAngle, globalWidth);
    bar.display(g);
    pushMatrix();
-    translate(width/2, height /2);
-    rotate(globalRotation);
-    image(g,bar.loc.x, bar.loc.y);
-    popMatrix();
+   translate(width/2, height /2);
+   rotate(globalRotation);
+   image(g,bar.loc.x, bar.loc.y);
+   popMatrix();
    }
   }
   //Split from center
@@ -530,7 +532,7 @@ void noteOn(Note note){
       }
     }
     for(int i = 0; i < lightPositions.length; i++){
-        if(i != 3){
+        if(i != 4){
          lightPositions[i] = false;
         }else{
          lightPositions[i] = true; 
