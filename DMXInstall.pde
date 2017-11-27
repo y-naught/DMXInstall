@@ -34,12 +34,14 @@ Boolean colSwitch = false;
 Boolean blackswitch = false;
 boolean reversed = false;
 Boolean gridSwitch = false;
+Boolean colorFlop = false;
 
 //declaring global effect speed values
 float globalAngle = 0;
 float globalSpeed = 30;
 int globalWidth = 0;
 float globalRotation = 0;
+int switchFrequency = 100;
 
 
 //light information for interface connectivity
@@ -55,7 +57,7 @@ Boolean[] lightPositions = new Boolean[5];
 
 
 //Declaring places for the effects to live
-int numEffects = 4;
+int numEffects = 5;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
@@ -194,22 +196,40 @@ void draw(){
   
   
   if(modes.get(1)){
-    //if(!reversed){
-    //  globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
-    //}else{
-    //  globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
-    //}
-    globalAngle = int(map(prevX, 30, 492, 7 * PI / 8, PI / 8));
+    switchFrequency = int(map(prevD, 1600, 3000, 90, 5));
+    if(switchFrequency == 0){
+     switchFrequency = 1; 
+    }
+    if(frameCount % switchFrequency == 0){
+     if(colorFlop == true){
+      colorFlop = false; 
+     }else{
+      colorFlop = true; 
+     }
+    }
+    
+    if(lightPositions[1] == true || lightPositions[3] == true){
+     globalAngle = 0; 
+    }else if(lightPositions[2] == true){
+     globalAngle = PI/2; 
+    }else if(lightPositions[4] == true){
+      globalAngle = PI / 4;
+    }
+    //globalAngle = int(map(prevX, 30, 492, 7 * PI / 8, PI / 8));
      //globalAngle = int(map(prevD, 1600, 3750, , width));
    PGraphics g = Layers.get(1);
-   hardFlip.update(globalAngle, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
+   
+   if(colorFlop == true){
+      hardFlip.update(globalAngle, hue1, saturation1, brightness1, hue2, saturation2, brightness2);
+    }else{
+      hardFlip.update(globalAngle, hue2, saturation2, brightness2, hue1, saturation1, brightness1); 
+    }
    hardFlip.display(g);
    image(g,0,0);
   }
   
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
-   background(hue2, saturation2, brightness2);
    float pos = map(prevX, 30, 492, -width, width/4);
    globalWidth = int(map(prevD, 1600, 3750, 0, width));
    if(lightPositions[2] == true){
@@ -219,38 +239,41 @@ void draw(){
      globalAngle = PI/2;
    }
    if(splitSwitch == true){
-   gradScan2.sw(false);
-   gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
-   gradScan2.display(g);
-   gradScan2.sw(true);
-   gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
-   gradScan2.display(g);
-   pushMatrix();
-    translate(width/2, height /2);
-    rotate(globalAngle);
-    image(g,gradScan2.loc.x, gradScan2.loc.y);
-    popMatrix();
+      rectMode(CORNER);
+      noStroke();
+      fill(hue2, saturation2, brightness2);
+      rect(0,height/2, width, height/2);
+      noStroke();
+      fill(hue1, saturation1, brightness1);
+      rect(0,0, width, height/2);
+      gradScan2.sw(false);
+      gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+      gradScan2.display(g);
+      gradScan2.sw(true);
+      gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+      gradScan2.display(g);
+      pushMatrix();
+      translate(width/2, height /2);
+      rotate(globalAngle);
+      image(g,gradScan2.loc.x, gradScan2.loc.y);
+      popMatrix();
    }else{
-   gradScan2.sw(false);
-   gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
-   gradScan2.display(g);
-   gradScan2.sw(true);
-   gradScan2.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, pos, globalAngle, globalWidth);
-   gradScan2.display(g);
-   pushMatrix();
-    translate(width/2, height /2);
-    rotate(globalAngle);
-    image(g,gradScan2.loc.x, gradScan2.loc.y);
-    popMatrix();
+      background(hue2, saturation2, brightness2);
+      gradScan2.sw(false);
+      gradScan2.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, pos, globalAngle, globalWidth);
+      gradScan2.display(g);
+      gradScan2.sw(true);
+      gradScan2.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, pos, globalAngle, globalWidth);
+      gradScan2.display(g);
+      pushMatrix();
+      translate(width/2, height /2);
+      rotate(globalAngle);
+      image(g,gradScan2.loc.x, gradScan2.loc.y);
+      popMatrix();
    }
   }
   
   if(modes.get(3)){
-   //if(!reversed){
-   //   globalRotation += map(globalAngle,0, TWO_PI, 0, PI/8);
-   // }else{
-   //   globalRotation += map(globalAngle,0, TWO_PI, 0, -PI/8);
-   // }
    globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
    globalRotation += globalAngle;
    globalWidth = int(map(prevD, 1600, 3750, width, width /2));
@@ -284,6 +307,11 @@ void draw(){
     image(g,bar.loc.x, bar.loc.y);
     popMatrix();
    }
+  }
+  //Split from center
+  if(modes.get(4)){
+   PGraphics g = Layers.get(4);
+   
   }
   
   

@@ -38,6 +38,7 @@ class ThreeCh{
   
   //a method for displaying the light on the screen including its channel number
   void display(){
+    rectMode(CENTER);
     noStroke();
     if(!black){
     fill(255);
