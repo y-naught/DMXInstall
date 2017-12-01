@@ -69,6 +69,7 @@ GradientScan2 gradScan2;
 GradientScan2 gradScan22;
 HardFlip hardFlip;
 RotatingBar bar;
+SplitGradient splitGrad;
 
 
 
@@ -122,11 +123,11 @@ void setup(){
   gradScan2 = new GradientScan2(true);
   gradScan22 = new GradientScan2(false);
   bar = new RotatingBar(false);
+  splitGrad = new SplitGradient();
 }
 
 void draw(){
   background(0);
-  
   client = server.available();
   if( client!= null){
    input = client.readString();
@@ -313,7 +314,32 @@ void draw(){
   //Split from center
   if(modes.get(4)){
    PGraphics g = Layers.get(4);
-   
+   if(splitSwitch == true){
+    rectMode(CORNER);
+    splitGrad.sw(false);
+    splitGrad.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalWidth);
+    splitGrad.display(g);
+    splitGrad.sw(true);
+    splitGrad.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalWidth);
+    splitGrad.display(g);
+    pushMatrix();
+    translate(width/2, height/2);
+    rotate(globalAngle);
+    image(g, splitGrad.loc.x, splitGrad.loc.y);
+    popMatrix();
+   }else{
+    splitGrad.sw(false);
+    splitGrad.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalWidth);
+    splitGrad.display(g);
+    splitGrad.sw(true);
+    splitGrad.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, globalSpeed, globalWidth);
+    splitGrad.display(g);
+    pushMatrix();
+    translate(width/2, height/2);
+    rotate(globalAngle);
+    image(g, splitGrad.loc.x, splitGrad.loc.y);
+    popMatrix();
+   }
   }
   
   
@@ -591,6 +617,21 @@ void noteOn(Note note){
       m = true;
       modes.set(i, m);
       bus.sendNoteOn(0, 59, 127);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
+   }
+  }
+ }
+ if(note.pitch() == 60){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 4){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+      bus.sendNoteOn(0, 60, 127);
     }else{
       Boolean m = modes.get(i);
       m = false; 
