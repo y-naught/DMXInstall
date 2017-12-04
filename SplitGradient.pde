@@ -6,27 +6,41 @@ class SplitGradient{
   int w = 200;
   float angle = 0;
   Boolean type = false;
+  Boolean colorFlip = false;
   
   PGraphics gTemp;
   
   SplitGradient(){
    loc = new PVector(-width/2, -height/2);
    vel = new PVector(10,0);
-   gTemp = createGraphics(width/2, height);
+   gTemp = createGraphics(width+1000, height);
   }
   
   void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, float sp, int wid){
-    c1 = color(0,0,0,0);
-    c2 = color(hu2, sat2, bri2);
+    if(colorFlip == true){
+      c1 = color(hu, sat, bri, 50);
+      c2 = color(hu2, sat2, bri2, 50);
+    }else{
+      c2 = color(hu, sat, bri, 50);
+      c1 = color(hu2, sat2, bri2, 50);
+    }
     vel.x = sp;
     loc.add(vel);
-    w = wid;
+    //w = wid;
+    w = int(map(frameCount % wid, 1, wid, gTemp.width + 250, 1));
+    if(frameCount % wid == 0){
+     if(colorFlip == true){
+      colorFlip = false; 
+     }else{
+      colorFlip = false; 
+     }
+    }
   }
   
   void display(PGraphics g){
    colorMode(RGB);
    gTemp.beginDraw();
-   //gTemp.background(0);
+   //gTemp.background(0, 10);
    for(int i = 0; i < w / 2; i++){
    if(type == true){
      gTemp.stroke(c1);
@@ -65,12 +79,9 @@ class SplitGradient{
   }
   gTemp.endDraw();
   g.beginDraw();
-  g.background(0);
-  g.image(gTemp, g.width/2, 0);
-  g.rotate(PI);
-  g.image(gTemp, g.width/2, 0);
-  g.rotate(PI);
-  g.image(gTemp, 0, 0);
+  //g.background(0);
+  g.tint(255, 50);
+  g.image(gTemp, -500, 0);
   g.endDraw();
   colorMode(HSB);
   }

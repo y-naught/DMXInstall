@@ -13,6 +13,10 @@ float data[];
 float prevX = 0;
 float prevY = 0;
 float prevD = 1600;
+float prevXmin = 0;
+float prevYmin = 0;
+float prevXmax = 500;
+float prevYmax = 500;
 
 PrintWriter output;
 PrintWriter logger;
@@ -35,13 +39,14 @@ Boolean blackswitch = false;
 boolean reversed = false;
 Boolean gridSwitch = false;
 Boolean colorFlop = false;
-
+Boolean personSwitch = false;
 //declaring global effect speed values
 float globalAngle = 0;
 float globalSpeed = 30;
 int globalWidth = 0;
 float globalRotation = 0;
 int switchFrequency = 100;
+int transition = 10;
 
 
 //light information for interface connectivity
@@ -57,7 +62,7 @@ Boolean[] lightPositions = new Boolean[5];
 
 
 //Declaring places for the effects to live
-int numEffects = 5;
+int numEffects = 7;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
@@ -70,6 +75,8 @@ GradientScan2 gradScan22;
 HardFlip hardFlip;
 RotatingBar bar;
 SplitGradient splitGrad;
+Fountain f1;
+Fountain f2;
 
 
 
@@ -124,6 +131,8 @@ void setup(){
   gradScan22 = new GradientScan2(false);
   bar = new RotatingBar(false);
   splitGrad = new SplitGradient();
+  f1 = new Fountain(prevX, prevY);
+  f2 = new Fountain(prevX, prevY);
 }
 
 void draw(){
@@ -137,10 +146,21 @@ void draw(){
    float curX;
    float curY;
    float avgD;
-   if(data.length >= 3){
+   float Xmin;
+   float Ymin;
+   float Xmax;
+   float Ymax;
+   int sw;
+   if(data.length >= 8){
      curX = data[0];
      curY = data[1];
      avgD = data[2];
+     Xmin = data[3];
+     Ymin = data[4];
+     Xmax = data[5];
+     Ymax = data[6];
+     sw = int(data[7]);
+     println(data[7]);
      if(curX >=0){
        prevX = 512 - curX;
      }
@@ -150,9 +170,33 @@ void draw(){
      if(avgD >= 0){
       prevD = avgD; 
      }
-    }  
+     if(Xmin >= 0){
+       prevXmin = Xmin;
+     }
+     if(Ymin >= 0){
+       prevYmin = Ymin; 
+     }
+     if(Xmax >= 0){
+       prevXmax = Xmax; 
+     }
+     if(Ymax >= 0){
+       prevYmax = Ymax; 
+     }
+     if((sw == 0 && personSwitch) || (sw == 1 && !personSwitch)){
+       if(sw == 0){
+        transition = 10; 
+       }
+       if(sw == 0){
+        personSwitch = false; 
+       }else{
+        personSwitch = true; 
+       }
+     }
+    }
  }
-  
+  if(personSwitch && transition <= 10 && transition != 0){
+   transition--;
+  }
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
@@ -192,6 +236,7 @@ void draw(){
     pushMatrix();
     translate(width/2, height /2);
     rotate(globalAngle);
+    tint(255, map(transition, 10, 0, 0, 255));
     image(g,gradScan.loc.x,gradScan.loc.y);
     image(g,gradScan.loc.x - g.width, gradScan.loc.y);
     popMatrix();
@@ -233,7 +278,7 @@ void draw(){
   
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
-   float pos = map(prevX, 30, 492, -width, width/4);
+   float pos = map(prevX, 0, 550, -width, width/4);
    globalWidth = int(map(prevD, 1600, 3750, 0, width));
    if(lightPositions[2] == true){
     globalAngle = 0; 
@@ -279,7 +324,7 @@ void draw(){
   if(modes.get(3)){
    globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
    globalRotation += globalAngle;
-   globalWidth = int(map(prevD, 1600, 3750, width, width /2));
+   globalWidth = int(map(prevD, 1600, 3750, width / 4, width));
    //background(hue2, saturation2, brightness2);
    PGraphics g = Layers.get(3);
    float pos = -width/2;
@@ -311,9 +356,13 @@ void draw(){
    popMatrix();
    }
   }
+  
+  
   //Split from center
   if(modes.get(4)){
    PGraphics g = Layers.get(4);
+   //globalAngle += map(prevD, 1600, 3750, 0, PI / 4);
+   globalWidth = int(map(prevD, 1600, 3750, 5, 150));
    if(splitSwitch == true){
     rectMode(CORNER);
     splitGrad.sw(false);
@@ -325,7 +374,7 @@ void draw(){
     pushMatrix();
     translate(width/2, height/2);
     rotate(globalAngle);
-    image(g, splitGrad.loc.x, splitGrad.loc.y);
+    image(g, -width /2, -height / 2);
     popMatrix();
    }else{
     splitGrad.sw(false);
@@ -337,12 +386,51 @@ void draw(){
     pushMatrix();
     translate(width/2, height/2);
     rotate(globalAngle);
-    image(g, splitGrad.loc.x, splitGrad.loc.y);
+    image(g, -width / 2, -height / 2);
     popMatrix();
    }
   }
   
+  if(modes.get(5)){
+   PGraphics g = Layers.get(5);
+   g.colorMode(HSB);
+   g.beginDraw();
+   int tmp = int(map(prevD, 1600, 3750, 120, 10));
+   if(frameCount % tmp == 0){
+   if(colorFlop == true){
+    colorFlop = false; 
+   }else{
+    colorFlop = true; 
+   }
+   }
+   if(colorFlop == true){
+     g.fill(hue1, brightness1, saturation1, 30);
+     g.noStroke();
+     g.rect(0,0, width, height / 2);
+     g.fill(hue2, brightness2, saturation2, 30);
+     g.rect(0, height / 2, width, height/2);
+   }else{
+     g.fill(hue2, brightness2, saturation2, 30);
+     g.noStroke();
+     g.rect(0,0, width, height / 2);
+     g.fill(hue1, brightness1, saturation1, 30);
+     g.rect(0, height / 2, width, height/2);
+   }
+   g.endDraw();
+   image(g, 0, 0);
+  }
   
+  if(modes.get(6)){
+   PGraphics g = Layers.get(6);
+   g.beginDraw();
+   g.colorMode(HSB);
+   g.background(hue2, saturation2, brightness2);
+   color c = color(hue1, saturation1, brightness1);
+   f1.run(prevX, prevY, prevXmin, prevYmin, c, g);
+   f2.run(prevX, prevY, prevXmax, prevYmax, c, g);
+   g.endDraw();
+   image(g,0,0);
+  }
   
   //apply the effect to the lights
   for(int j = 0; j < modes.size(); j++){
@@ -632,6 +720,36 @@ void noteOn(Note note){
       m = true;
       modes.set(i, m);
       bus.sendNoteOn(0, 60, 127);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
+   }
+  }
+ }
+ if(note.pitch() == 61){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 5){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+      bus.sendNoteOn(0, 61, 127);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
+   }
+  }
+ }
+ if(note.pitch() == 62){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 6){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+      bus.sendNoteOn(0, 62, 127);
     }else{
       Boolean m = modes.get(i);
       m = false; 
