@@ -23,6 +23,7 @@ float prevYmin = 0;
 float prevXmax = 500;
 float prevYmax = 500;
 
+PrintWriter effectOutput;
 PrintWriter output;
 PrintWriter effectOutput;
 PrintWriter logger;
@@ -47,7 +48,11 @@ Boolean gridSwitch = false;
 Boolean colorFlop = false;
 Boolean personSwitch = true;
 Boolean armsMode = false;
+<<<<<<< HEAD:DMXInstallAutomatic.pde
 Boolean kinectColor = false;
+=======
+Boolean kinectColor = true;
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
 //declaring global effect speed values
 float globalAngle = 0;
 float globalSpeed = 30;
@@ -82,7 +87,7 @@ Boolean lightBlack = false;
 Boolean[] lightPositions = new Boolean[5];
 String[] lightFiles = new String[5];
 
-
+float smFactor = 0.2;
 
 //Declaring places for the effects to live
 int numEffects = 9;
@@ -189,10 +194,14 @@ void draw(){
    float Xmax;
    float Ymax;
    int sw;
+<<<<<<< HEAD:DMXInstallAutomatic.pde
    if(data.length > 8){
     server.write(1); 
    }
    if(data.length >= 8){
+=======
+   if(data.length == 8){
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
      curX = data[0];
      curY = data[1];
      avgD = data[2];
@@ -204,6 +213,7 @@ void draw(){
      //println(data[7]);
      if(curX >=0){
        prevX = 512 - curX;
+       //println(prevX);
      }
      if(curY >= 0){
        prevY = curY;
@@ -223,6 +233,7 @@ void draw(){
      if(Ymax >= 0){
        prevYmax = Ymax; 
      }
+<<<<<<< HEAD:DMXInstallAutomatic.pde
      if(sw == 1 && personSwitch != true && frameCount > firstFrame + gracePeriod && frameCount - lastFrameSeen < 150 && currentEffectNum < 1){
        //println(sw);
        personSwitch = true;
@@ -320,10 +331,18 @@ void draw(){
    }
   
   
+=======
+    }
+ }
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
     globalWidth = 0;
+<<<<<<< HEAD:DMXInstallAutomatic.pde
+=======
+    globalSpeed = 4;
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
     if(kinectColor){
     int tmp = int(map(prevX, 0, width, 0, 255));
     if(tmp > 255){
@@ -336,6 +355,7 @@ void draw(){
     hue1 = tmp;
     brightness1 = tmp2;
     }else{
+<<<<<<< HEAD:DMXInstallAutomatic.pde
       globalSpeed = int(map(prevD, 1600, 3400, 2, 20));
     }
     
@@ -348,6 +368,24 @@ void draw(){
     //}else if(lightPositions[4] == true){
     //  globalAngle = PI / 4;
     //}
+=======
+     globalSpeed = int(map(prevD, 1600, 3400, 2, 40));
+    }
+    if(globalSpeed < 0){
+     globalSpeed = 1; 
+    }
+    //globalSpeed = map(prevD, 1600, 3750,  0 , 20);
+    //globalSpeed = 4;
+    //globalAngle = int(map(prevX, 30, 492, 5 * PI / 6, PI / 6));
+    if(lightPositions[0] == true || lightPositions[1] == true){
+      globalAngle = 0;
+    }else if(lightPositions[2] == true || lightPositions[3] == true){
+      globalAngle = 0;
+    }else if(lightPositions[4] == true){
+      globalAngle = PI / 4;
+     }
+   
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
     g.beginDraw();
     g.background(0, alpha1);
     if(splitSwitch == true){
@@ -374,7 +412,11 @@ void draw(){
     pushMatrix();
     translate(width/2, height /2);
     rotate(globalAngle);
+<<<<<<< HEAD:DMXInstallAutomatic.pde
     tint(255, alpha1);
+=======
+    //tint(255, map(transition, 10, 0, 0, 255));
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
     image(g,gradScan.loc.x,gradScan.loc.y);
     image(g,gradScan.loc.x - g.width, gradScan.loc.y);
     popMatrix();
@@ -382,7 +424,12 @@ void draw(){
   
   
   if(modes.get(1)){
+<<<<<<< HEAD:DMXInstallAutomatic.pde
     switchFrequency = int(map(prevD, 1600, 3000, 50, 15));
+=======
+    //switchFrequency = int(map(prevD, 1600, 3000, 50, 15));
+    switchFrequency = 18;
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
     if(switchFrequency == 0){
      switchFrequency = 1; 
     }
@@ -419,12 +466,22 @@ void draw(){
    PGraphics g = Layers.get(2);
    float pos = map(prevX, 0, 550, -width, width/4);
    //globalWidth = int(map(prevD, 1600, 3750, 0, width));
+<<<<<<< HEAD:DMXInstallAutomatic.pde
    //if(lightPositions[2] == true){
    // globalAngle = 0; 
    //}
    //else if(lightPositions[1] == true){
    //  globalAngle = PI/2;
    //}
+=======
+   globalWidth = 2 * width / 5;
+   if(lightPositions[2] == true){
+    globalAngle = 0; 
+   }
+   else if(lightPositions[1] == true){
+     globalAngle = PI/2;
+   }
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
    if(splitSwitch == true){
       rectMode(CORNER);
       noStroke();
@@ -466,10 +523,20 @@ void draw(){
     if(!armsMode){
       globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
       globalRotation += globalAngle;
+<<<<<<< HEAD:DMXInstallAutomatic.pde
       //globalWidth = int(map(prevD, 1600, 3750, width / 4, width));
     }else{
       globalRotation = map(prevYmin - prevYmax, 0, height / 2, PI / 2, 3 * PI / 2);
     }
+=======
+      globalWidth = 6 * width / 9;
+    }else{
+      globalRotation = map(prevYmin - prevYmax, 0, height / 2, PI / 2, 3 * PI / 2);
+      globalWidth = 6 * width / 9;
+    }
+   
+   //background(hue2, saturation2, brightness2);
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
    PGraphics g = Layers.get(3);
    float pos = -width/2;
    //float pos = map(globalSpeed, 0, 50, -width, width/4);;
@@ -519,7 +586,7 @@ void draw(){
     splitGrad.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, alpha1, globalSpeed, globalWidth);
     splitGrad.display(g);
     pushMatrix();
-    translate(width/2, height/2);
+    translate(width/2 + x, height/2);
     rotate(globalAngle);
     tint(255, alpha1);
     image(g, -width /2, -height / 2);
@@ -532,7 +599,7 @@ void draw(){
     splitGrad.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, alpha1, globalSpeed, globalWidth);
     splitGrad.display(g);
     pushMatrix();
-    translate(width/2, height/2);
+    translate(width/2 + x, height/2);
     rotate(globalAngle);
     tint(255, alpha1);
     image(g, -width / 2, -height / 2);
@@ -544,7 +611,12 @@ void draw(){
    PGraphics g = Layers.get(5);
    g.colorMode(HSB);
    g.beginDraw();
+<<<<<<< HEAD:DMXInstallAutomatic.pde
    int tmp3 = 18;
+=======
+   int tmp3 = 20;
+
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
    if(kinectColor){
      int tmp = int(map(prevX, 0, width, 0, 255));
     if(tmp > 255){
@@ -596,13 +668,22 @@ void draw(){
   }
   
   if(modes.get(7)){
+<<<<<<< HEAD:DMXInstallAutomatic.pde
    PGraphics g = Layers.get(6);
+=======
+   PGraphics g = Layers.get(7);
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
    g.beginDraw();
    g.colorMode(RGB);
    colorMode(RGB);
    g.loadPixels();
+<<<<<<< HEAD:DMXInstallAutomatic.pde
    color c1 = color(hue1, saturation1, brightness1, alpha1);
    color c2 = color(hue2, saturation2, brightness2, alpha1);
+=======
+   color c1 = color(hue1, saturation1, brightness1);
+   color c2 = color(hue2, saturation2, brightness2);
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
    for(int i = 0; i < width; i++){
     for(int j = 0; j < height; j++){
      g.pixels[i + j * width] = lerpColor(c1, c2, map(sin(i * PI / 25), -1, 1, 0, 1.0));
@@ -610,10 +691,15 @@ void draw(){
    }
    g.updatePixels();
    g.endDraw();
+<<<<<<< HEAD:DMXInstallAutomatic.pde
    tint(255, alpha1);
    image(g, 0, 0);
   }
   
+=======
+   image(g, 0, 0);
+  }
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
   if(modes.get(8)){
     int tmp = int(map(prevX, 50, width - 50, 0, 255));
     int tmp2 = int(map(prevD, 1600, 3200, 0, 255));
@@ -634,7 +720,10 @@ void draw(){
    image(g, 0, 0);
   }
   
+<<<<<<< HEAD:DMXInstallAutomatic.pde
   
+=======
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
   //apply the effect to the lights
   for(int j = 0; j < modes.size(); j++){
     if(modes.get(j) == true){
@@ -858,6 +947,21 @@ void noteOn(Note note){
         }
      }
   }
+  if(note.pitch() == 55){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 8){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+      bus.sendNoteOn(0, 55, 127);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+      bus.sendNoteOn(0, 55, 0);
+   }
+  }
+ }
  if(note.pitch() == 56){
    for(int i = 0; i < modes.size(); i++){
     if(i == 0){
@@ -1045,6 +1149,7 @@ void displayGrid(){
  }
 }
 
+<<<<<<< HEAD:DMXInstallAutomatic.pde
 void firstTransition(){
   //switches from the resting effect to the first effect of the experience
   
@@ -1104,6 +1209,10 @@ void readEffectFile(int i){
 
 void saveEffectFile(){
   effectOutput = createWriter("effectFile1.txt");
+=======
+void saveEffectFile(){
+  effectOutput = createWriter("effectFile2.txt");
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
   effectOutput.println(hue1);
   effectOutput.println(saturation1);
   effectOutput.println(brightness1);
@@ -1132,6 +1241,11 @@ void saveEffectFile(){
   effectOutput.println(i);
     }
   }
+<<<<<<< HEAD:DMXInstallAutomatic.pde
+=======
+  effectOutput.println(armsMode);
+  effectOutput.println(kinectColor);
+>>>>>>> c06cb840c154d3f11a2b9d4addec7c407de65ab6:DMXInstall.pde
   effectOutput.flush();
   effectOutput.close();
 }
