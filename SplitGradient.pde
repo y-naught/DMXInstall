@@ -16,13 +16,13 @@ class SplitGradient{
    gTemp = createGraphics(width+1000, height);
   }
   
-  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, float sp, int wid){
+  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, int alp, float sp, int wid){
     if(colorFlip == true){
-      c1 = color(hu, sat, bri, 50);
-      c2 = color(hu2, sat2, bri2, 50);
+      c1 = color(hu, sat, bri, alp);
+      c2 = color(hu2, sat2, bri2, alp);
     }else{
-      c2 = color(hu, sat, bri, 50);
-      c1 = color(hu2, sat2, bri2, 50);
+      c2 = color(hu, sat, bri, alp);
+      c1 = color(hu2, sat2, bri2, alp);
     }
     vel.x = sp;
     loc.add(vel);

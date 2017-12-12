@@ -8,9 +8,9 @@ class HardFlip{
     c2 = color(235,255,255);
   }
   
-  void update(float ang, int hu, int sat, int bri, int hu2, int sat2, int bri2){
-    c1 = color(hu, sat, bri);
-    c2 = color(hu2, sat2, bri2);
+  void update(float ang, int hu, int sat, int bri, int hu2, int sat2, int bri2 ,int alp){
+    c1 = color(hu, sat, bri, alp);
+    c2 = color(hu2, sat2, bri2, alp);
     angle = ang;
   }
   

@@ -16,9 +16,9 @@ class GradientScan{
   }
   
   //update the info
-  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, float sp, float an, int wid){
-    c1 = color(hu, sat, bri);
-    c2 = color(hu2, sat2, bri2);
+  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2,int alp1, float sp, float an, int wid){
+    c1 = color(hu, sat, bri, alp1);
+    c2 = color(hu2, sat2, bri2, alp1);
     vel.x = sp;
     loc.add(vel);
     w = wid;

@@ -17,13 +17,13 @@ class RotatingBar{
   }
   
   //update the info
-  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, float pos, float an, int wid){
+  void update(int hu, int sat, int bri, int hu2, int sat2, int bri2, int alp, float pos, float an, int wid){
     if(type == true){
-      c1 = color(hu, sat, bri);
-      c2 = color(hu2, sat2, bri2);
+      c1 = color(hu, sat, bri, alp);
+      c2 = color(hu2, sat2, bri2, alp);
     }else{
-      c2 = color(hu, sat, bri);
-      c1 = color(hu, sat, bri);
+      c2 = color(hu, sat, bri, alp);
+      c1 = color(hu, sat, bri, alp);
     }
     loc.x = pos;
     w = wid;

@@ -48,7 +48,7 @@ void readLightFile(String s){
 }
 
 void saveLightPreset(){
-  output = createWriter("positions4.txt");
+  output = createWriter("positions5.txt");
   for(int i = 0; i < numLights; i++){
     ThreeCh l = Lights3Ch.get(i);
     output.println(l.location.x);
