@@ -18,6 +18,7 @@ float prevYmin = 0;
 float prevXmax = 500;
 float prevYmax = 500;
 
+PrintWriter effectOutput;
 PrintWriter output;
 PrintWriter logger;
 int count = 1;
@@ -39,7 +40,9 @@ Boolean blackswitch = false;
 boolean reversed = false;
 Boolean gridSwitch = false;
 Boolean colorFlop = false;
-Boolean personSwitch = false;
+Boolean personSwitch = true;
+Boolean armsMode = false;
+Boolean kinectColor = true;
 //declaring global effect speed values
 float globalAngle = 0;
 float globalSpeed = 30;
@@ -55,14 +58,14 @@ int universeSize = 256;
 String DMXPRO_PORT = "/dev/tty.usbserial-EN224919";
 int DMXPRO_BAUDRATE = 115000;
 ArrayList<ThreeCh> Lights3Ch;
-int numLights = 20;
+int numLights = 22;
 Boolean lightBlack = false;
 Boolean[] lightPositions = new Boolean[5];
 
-
+float smFactor = 0.2;
 
 //Declaring places for the effects to live
-int numEffects = 7;
+int numEffects = 9;
 ArrayList<Boolean> modes;
 ArrayList<PGraphics> Layers;
 
@@ -151,7 +154,7 @@ void draw(){
    float Xmax;
    float Ymax;
    int sw;
-   if(data.length >= 8){
+   if(data.length == 8){
      curX = data[0];
      curY = data[1];
      avgD = data[2];
@@ -160,9 +163,10 @@ void draw(){
      Xmax = data[5];
      Ymax = data[6];
      sw = int(data[7]);
-     println(data[7]);
+     //println(data[7]);
      if(curX >=0){
        prevX = 512 - curX;
+       //println(prevX);
      }
      if(curY >= 0){
        prevY = curY;
@@ -182,34 +186,41 @@ void draw(){
      if(Ymax >= 0){
        prevYmax = Ymax; 
      }
-     if((sw == 0 && personSwitch) || (sw == 1 && !personSwitch)){
-       if(sw == 0){
-        transition = 10; 
-       }
-       if(sw == 0){
-        personSwitch = false; 
-       }else{
-        personSwitch = true; 
-       }
-     }
     }
  }
-  if(personSwitch && transition <= 10 && transition != 0){
-   transition--;
-  }
   //Where the effects live
   if(modes.get(0)){
     PGraphics g = Layers.get(0);
     globalWidth = 0;
-    globalSpeed = map(prevD, 1600, 3750,  0 , 20);
+    globalSpeed = 4;
+    if(kinectColor){
+    int tmp = int(map(prevX, 0, width, 0, 255));
+    if(tmp > 255){
+     tmp = 255; 
+    }
+    int tmp2 = int(map(prevD, 1600, 3400, 0, 255));
+    if(tmp2 > 255){
+     tmp2 = 255; 
+    }
+    hue1 = tmp;
+    brightness1 = tmp2;
+    }else{
+     globalSpeed = int(map(prevD, 1600, 3400, 2, 40));
+    }
+    if(globalSpeed < 0){
+     globalSpeed = 1; 
+    }
+    //globalSpeed = map(prevD, 1600, 3750,  0 , 20);
+    //globalSpeed = 4;
     //globalAngle = int(map(prevX, 30, 492, 5 * PI / 6, PI / 6));
     if(lightPositions[0] == true || lightPositions[1] == true){
-      globalAngle = PI / 2;
+      globalAngle = 0;
     }else if(lightPositions[2] == true || lightPositions[3] == true){
       globalAngle = 0;
     }else if(lightPositions[4] == true){
       globalAngle = PI / 4;
-    }
+     }
+   
     g.beginDraw();
     g.background(0);
     if(splitSwitch == true){
@@ -236,7 +247,7 @@ void draw(){
     pushMatrix();
     translate(width/2, height /2);
     rotate(globalAngle);
-    tint(255, map(transition, 10, 0, 0, 255));
+    //tint(255, map(transition, 10, 0, 0, 255));
     image(g,gradScan.loc.x,gradScan.loc.y);
     image(g,gradScan.loc.x - g.width, gradScan.loc.y);
     popMatrix();
@@ -244,7 +255,8 @@ void draw(){
   
   
   if(modes.get(1)){
-    switchFrequency = int(map(prevD, 1600, 3000, 90, 5));
+    //switchFrequency = int(map(prevD, 1600, 3000, 50, 15));
+    switchFrequency = 18;
     if(switchFrequency == 0){
      switchFrequency = 1; 
     }
@@ -279,7 +291,8 @@ void draw(){
   if(modes.get(2)){
    PGraphics g = Layers.get(2);
    float pos = map(prevX, 0, 550, -width, width/4);
-   globalWidth = int(map(prevD, 1600, 3750, 0, width));
+   //globalWidth = int(map(prevD, 1600, 3750, 0, width));
+   globalWidth = 2 * width / 5;
    if(lightPositions[2] == true){
     globalAngle = 0; 
    }
@@ -322,9 +335,15 @@ void draw(){
   }
   
   if(modes.get(3)){
-   globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
-   globalRotation += globalAngle;
-   globalWidth = int(map(prevD, 1600, 3750, width / 4, width));
+    if(!armsMode){
+      globalAngle = map(prevX, 30, 492, -PI/32, PI/32);
+      globalRotation += globalAngle;
+      globalWidth = 6 * width / 9;
+    }else{
+      globalRotation = map(prevYmin - prevYmax, 0, height / 2, PI / 2, 3 * PI / 2);
+      globalWidth = 6 * width / 9;
+    }
+   
    //background(hue2, saturation2, brightness2);
    PGraphics g = Layers.get(3);
    float pos = -width/2;
@@ -361,8 +380,9 @@ void draw(){
   //Split from center
   if(modes.get(4)){
    PGraphics g = Layers.get(4);
+   int x = int(map(prevX, 0, width, -width / 2, width /2));
    //globalAngle += map(prevD, 1600, 3750, 0, PI / 4);
-   globalWidth = int(map(prevD, 1600, 3750, 5, 150));
+   globalWidth = int(map(prevD, 1600, 3750, 40, 10));
    if(splitSwitch == true){
     rectMode(CORNER);
     splitGrad.sw(false);
@@ -372,7 +392,7 @@ void draw(){
     splitGrad.update(hue1, brightness1, saturation1, hue2, saturation2, brightness2, globalSpeed, globalWidth);
     splitGrad.display(g);
     pushMatrix();
-    translate(width/2, height/2);
+    translate(width/2 + x, height/2);
     rotate(globalAngle);
     image(g, -width /2, -height / 2);
     popMatrix();
@@ -384,7 +404,7 @@ void draw(){
     splitGrad.update(hue2, brightness2, saturation2, hue1, saturation1, brightness1, globalSpeed, globalWidth);
     splitGrad.display(g);
     pushMatrix();
-    translate(width/2, height/2);
+    translate(width/2 + x, height/2);
     rotate(globalAngle);
     image(g, -width / 2, -height / 2);
     popMatrix();
@@ -395,8 +415,21 @@ void draw(){
    PGraphics g = Layers.get(5);
    g.colorMode(HSB);
    g.beginDraw();
-   int tmp = int(map(prevD, 1600, 3750, 120, 10));
-   if(frameCount % tmp == 0){
+   int tmp3 = 20;
+
+   if(kinectColor){
+     int tmp = int(map(prevX, 0, width, 0, 255));
+    if(tmp > 255){
+     tmp = 255; 
+    }
+    hue1 = tmp;
+   }else{
+     tmp3 = int(map(prevD, 1600, 3750, 50, 2));
+     if(tmp3 < 1){
+        tmp3 = 1; 
+      }
+   }
+   if(frameCount % tmp3 == 0){
    if(colorFlop == true){
     colorFlop = false; 
    }else{
@@ -404,16 +437,16 @@ void draw(){
    }
    }
    if(colorFlop == true){
-     g.fill(hue1, brightness1, saturation1, 30);
+     g.fill(hue1, brightness1, saturation1, 90);
      g.noStroke();
      g.rect(0,0, width, height / 2);
-     g.fill(hue2, brightness2, saturation2, 30);
+     g.fill(hue2, brightness2, saturation2, 90);
      g.rect(0, height / 2, width, height/2);
    }else{
-     g.fill(hue2, brightness2, saturation2, 30);
+     g.fill(hue2, brightness2, saturation2, 90);
      g.noStroke();
      g.rect(0,0, width, height / 2);
-     g.fill(hue1, brightness1, saturation1, 30);
+     g.fill(hue1, brightness1, saturation1, 90);
      g.rect(0, height / 2, width, height/2);
    }
    g.endDraw();
@@ -430,6 +463,43 @@ void draw(){
    f2.run(prevX, prevY, prevXmax, prevYmax, c, g);
    g.endDraw();
    image(g,0,0);
+  }
+  
+  if(modes.get(7)){
+   PGraphics g = Layers.get(7);
+   g.beginDraw();
+   g.colorMode(RGB);
+   colorMode(RGB);
+   g.loadPixels();
+   color c1 = color(hue1, saturation1, brightness1);
+   color c2 = color(hue2, saturation2, brightness2);
+   for(int i = 0; i < width; i++){
+    for(int j = 0; j < height; j++){
+     g.pixels[i + j * width] = lerpColor(c1, c2, map(sin(i * PI / 25), -1, 1, 0, 1.0));
+    }
+   }
+   g.updatePixels();
+   g.endDraw();
+   image(g, 0, 0);
+  }
+  if(modes.get(8)){
+    int tmp = int(map(prevX, 50, width - 50, 0, 255));
+    int tmp2 = int(map(prevD, 1600, 3200, 0, 255));
+    hue1 = tmp;
+    brightness1 = tmp2;
+    hue2 = 255 - tmp;
+    brightness2 = tmp2;
+   PGraphics g = Layers.get(8);
+   g.beginDraw();
+   g.colorMode(HSB);
+   g.background(0, alpha1);
+   g.fill(hue1, saturation1, brightness1, alpha1);
+   g.rect(0,0, width, height/2);
+   g.fill(hue2, saturation2, brightness2, alpha1);
+   g.rect(0, height / 2, width, height/2);
+   g.endDraw();
+   //tint(255, 25);
+   image(g, 0, 0);
   }
   
   //apply the effect to the lights
@@ -465,8 +535,10 @@ void draw(){
   }
  }
  lightBlack = false;
- if(mousePressed == true){
+ if(keyPressed == true){
+   if(key == 'm'){
  lightArranger(Lights3Ch);
+   }
  }
  if(gridSwitch == true){
   displayGrid(); 
@@ -518,7 +590,7 @@ void keyPressed(){
    }
  }
  if(key == 's'){
-   saveLightPreset();
+   saveEffectFile();
  }
  if(key == 'x'){
   logger.flush();
@@ -653,6 +725,21 @@ void noteOn(Note note){
         }
      }
   }
+  if(note.pitch() == 55){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 8){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+      bus.sendNoteOn(0, 55, 127);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+      bus.sendNoteOn(0, 55, 0);
+   }
+  }
+ }
  if(note.pitch() == 56){
    for(int i = 0; i < modes.size(); i++){
     if(i == 0){
@@ -758,6 +845,21 @@ void noteOn(Note note){
    }
   }
  }
+ if(note.pitch() == 63){
+   for(int i = 0; i < modes.size(); i++){
+    if(i == 7){
+      Boolean m = modes.get(i);
+      m = true;
+      modes.set(i, m);
+      bus.sendNoteOn(0, 63, 127);
+    }else{
+      Boolean m = modes.get(i);
+      m = false; 
+      modes.set(i, m);
+      bus.sendNoteOn(0, i + 56, 0);
+   }
+  }
+ }
  if(note.pitch() == 64){
    if(colSwitch == true){
     colSwitch = false;
@@ -823,4 +925,40 @@ void displayGrid(){
  for(int i = 0; i < height; i+=50){
   line(0, i, width, i); 
  }
+}
+
+void saveEffectFile(){
+  effectOutput = createWriter("effectFile2.txt");
+  effectOutput.println(hue1);
+  effectOutput.println(saturation1);
+  effectOutput.println(brightness1);
+  effectOutput.println(hue2);
+  effectOutput.println(saturation2);
+  effectOutput.println(brightness2);
+  effectOutput.println(splitSwitch);
+  effectOutput.println(colSwitch);
+  effectOutput.println(blackswitch);
+  effectOutput.println(reversed);
+  effectOutput.println(gridSwitch);
+  effectOutput.println(colorFlop);
+  effectOutput.println(globalAngle);
+  effectOutput.println(globalSpeed);
+  effectOutput.println(globalWidth);
+  effectOutput.println(globalRotation);
+  effectOutput.println(switchFrequency);
+  effectOutput.println(transition);
+  for(int i = 0; i < lightPositions.length; i++){
+    if(lightPositions[i]){
+      effectOutput.println(i);
+    }
+  }
+  for(int i = 0; i < modes.size(); i++){
+    if(modes.get(i)){
+  effectOutput.println(i);
+    }
+  }
+  effectOutput.println(armsMode);
+  effectOutput.println(kinectColor);
+  effectOutput.flush();
+  effectOutput.close();
 }
